@@ -29,6 +29,6 @@ public class OrderController {
 			return "orderForm";
 		}
 		log.info("Order submitted: " + order);
-		return "refirect:/";
+		return "redirect:/";
 	}
 }
