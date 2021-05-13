@@ -10,11 +10,11 @@ import com.chinjja.taco.User;
 import com.chinjja.taco.data.UserRepository;
 
 @Service
-public class UserRepositoryUserDetailService implements UserDetailsService {
+public class UserRepositoryUserDetailsService implements UserDetailsService {
 	private final UserRepository userRepo;
 	
 	@Autowired
-	public UserRepositoryUserDetailService(UserRepository userRepo) {
+	public UserRepositoryUserDetailsService(UserRepository userRepo) {
 		this.userRepo = userRepo;
 	}
 
