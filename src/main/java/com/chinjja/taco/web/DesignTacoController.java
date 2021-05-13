@@ -27,9 +27,6 @@ import com.chinjja.taco.data.UserRepository;
 import com.chinjja.taco.Taco;
 import com.chinjja.taco.User;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Controller
 @RequestMapping("/design")
 @SessionAttributes("order")
