@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.chinjja.taco.Ingredient.Type;
 import com.chinjja.taco.data.IngredientRepository;import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 
 @SpringBootApplication
 public class TacoApplication {
@@ -15,6 +16,7 @@ public class TacoApplication {
 	}
 
 	@Bean
+	@Profile("!prod")
 	public CommandLineRunner dataLoader(IngredientRepository repo) {
 		return args -> {
 			repo.save(new Ingredient("FLTO", "Flour Tortilla", Type.WRAP));
