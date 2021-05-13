@@ -29,7 +29,7 @@ public class Order implements Serializable {
 	
 	@Id @GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	private Date placeAt;
+	private Date placedAt;
 	
 	@ManyToOne
 	private User user;
@@ -66,7 +66,7 @@ public class Order implements Serializable {
 	}
 	
 	@PrePersist
-	void placedAt() {
-		this.placeAt = new Date();
+	void abc() {
+		this.placedAt = new Date();
 	}
 }
