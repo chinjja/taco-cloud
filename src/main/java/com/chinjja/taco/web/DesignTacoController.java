@@ -10,12 +10,18 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.rest.webmvc.support.PersistentEntityResourceProcessor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.EntityLinks;
+import org.springframework.hateoas.server.RepresentationModelProcessor;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +54,7 @@ import com.chinjja.taco.User;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
-@RestController
-@RequestMapping(path = "design", produces = "application/json")
-@CrossOrigin("*")
+@RepositoryRestController
 public class DesignTacoController {
 	private final TacoRepository tacoRepo;
 	
@@ -59,31 +63,26 @@ public class DesignTacoController {
 		this.tacoRepo = tacoRepo;
 	}
 	
-	@GetMapping("/recent")
-	public CollectionModel<TacoResource> recentTacos() {
+	@GetMapping(path="/tacos/recent", produces="application/hal+json")
+	public ResponseEntity<CollectionModel<TacoResource>> recentTacos() {
 		PageRequest page = PageRequest.of(0, 12, Sort.by("createdAt").descending());
 		
 		List<Taco> tacos = tacoRepo.findAll(page).getContent();
-//		CollectionModel<Taco> recentResources = CollectionModel.of(tacos);
-//		recentResources.add(new Link("http://localhost:8080/design/recent", "recents"));
-//		recentResources.add(WebMvcLinkBuilder.linkTo(DesignTacoController.class).slash("recent").withRel("recents"));
 		CollectionModel<TacoResource> recentResources = new TacoResourceAssembler().toCollectionModel(tacos);
 		recentResources.add(linkTo(methodOn(DesignTacoController.class).recentTacos()).withRel("recents"));
-		return recentResources;
+		return ResponseEntity.ok(recentResources);
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<Taco> tacoById(@PathVariable("id") Long id) {
-		Optional<Taco> optTaco = tacoRepo.findById(id);
-		if(optTaco.isPresent()) {
-			return ResponseEntity.ok(optTaco.get());
-		}
-		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-	}
-	
-	@PostMapping(consumes = "application/json")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Taco postTaco(@RequestBody Taco taco) {
-		return tacoRepo.save(taco);
+	@Bean
+	public RepresentationModelProcessor<PagedModel<EntityModel<Taco>>> tacoProcessor(EntityLinks links) {
+		return new RepresentationModelProcessor<PagedModel<EntityModel<Taco>>>() {
+			@Override
+			public PagedModel<EntityModel<Taco>> process(PagedModel<EntityModel<Taco>> model) {
+				model.add(links.linkFor(Taco.class)
+						.slash("recent")
+						.withRel("recents"));
+				return model;
+			}
+		};
 	}
 }
